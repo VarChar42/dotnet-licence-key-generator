@@ -49,9 +49,11 @@ namespace AppSoftware.LicenceEngine.Tests
             KeyByteSet keyByteSet2 = new KeyByteSet(kbs2.KeyByteNo, kbs2.KeyByteA, kbs2.KeyByteB, kbs2.KeyByteC);
             KeyByteSet keyByteSet3 = new KeyByteSet(kbs3.KeyByteNo, kbs3.KeyByteA, kbs3.KeyByteB, kbs3.KeyByteC);
 
+            Random rand = new Random();
+
             for (int i = 0; i < 10000; i++)
             {
-                int seed = new Random().Next(0, int.MaxValue);
+                int seed = rand.Next(0, int.MaxValue);
 
                 key = pkvLicenceKey.MakeKey(seed, keyByteSets);
 
