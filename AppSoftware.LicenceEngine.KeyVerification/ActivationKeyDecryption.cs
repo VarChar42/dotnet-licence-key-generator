@@ -1,13 +1,18 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.IO;
 using System.Security.Cryptography;
+
+#endregion
 
 namespace AppSoftware.LicenceEngine.KeyVerification
 {
     internal class ActivationKeyDecryption
     {
         /// <summary>
-        /// Decrypt a string into a string using a custom password. Uses Decrypt(byte[], byte[], byte[]) </summary>
+        ///     Decrypt a string into a string using a custom password. Uses Decrypt(byte[], byte[], byte[])
+        /// </summary>
         /// <param name="cipherText"></param>
         /// <param name="password"></param>
         /// <returns></returns>
@@ -23,8 +28,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
             // using a dictionary attack - 
             // trying to guess a password by enumerating all possible words. 
 
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password,
-                new byte[] {0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76});
+            Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(password, new byte[] {0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76});
 
             // Now get the key/IV and do the decryption using
             // the function that accepts byte arrays. 
@@ -39,8 +43,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
             // You can also read KeySize/BlockSize properties off
             // the algorithm to find out the sizes. 
 
-            byte[] decryptedData = Decrypt(cipherBytes,
-                pdb.GetBytes(32), pdb.GetBytes(16));
+            byte[] decryptedData = Decrypt(cipherBytes, pdb.GetBytes(32), pdb.GetBytes(16));
 
             // Now we need to turn the resulting byte array into a string. 
             // A common mistake would be to use an Encoding class for that.
@@ -53,7 +56,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
         }
 
         /// <summary>
-        /// Decrypt a byte array into a byte array using a key and an IV 
+        ///     Decrypt a byte array into a byte array using a key and an IV
         /// </summary>
         /// <param name="cipherData"></param>
         /// <param name="key"></param>
@@ -96,8 +99,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
             // and the output will be written in the MemoryStream
             // we have provided. 
 
-            CryptoStream cs = new CryptoStream(ms,
-                alg.CreateDecryptor(), CryptoStreamMode.Write);
+            CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
 
             // Write the data and make it do the decryption 
 
@@ -121,5 +123,3 @@ namespace AppSoftware.LicenceEngine.KeyVerification
         }
     }
 }
-
-

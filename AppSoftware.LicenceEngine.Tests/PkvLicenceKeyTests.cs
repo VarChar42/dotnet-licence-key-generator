@@ -1,8 +1,14 @@
-﻿using System;
+﻿#region usings
+
+using System;
+
 using AppSoftware.LicenceEngine.Common;
 using AppSoftware.LicenceEngine.KeyGenerator;
 using AppSoftware.LicenceEngine.KeyVerification;
+
 using NUnit.Framework;
+
+#endregion
 
 namespace AppSoftware.LicenceEngine.Tests
 {
@@ -16,19 +22,19 @@ namespace AppSoftware.LicenceEngine.Tests
 
             var pkvKeyCheck = new PkvKeyCheck();
 
-            string key = String.Empty;
+            string key = string.Empty;
 
-            KeyByteSet[] keyByteSets = new []
-                                               {
-                                                   new KeyByteSet(1, 58, 6, 97),
-                                                   new KeyByteSet(2, 96, 254, 23),
-                                                   new KeyByteSet(3, 11, 185, 69), 
-                                                   new KeyByteSet(4, 2, 93, 41),
-                                                   new KeyByteSet(5, 62, 4, 234),
-                                                   new KeyByteSet(6, 200, 56, 49), 
-                                                   new KeyByteSet(7, 89, 45,142), 
-                                                   new KeyByteSet(8, 6, 88, 32)
-                                               };
+            KeyByteSet[] keyByteSets = new[]
+            {
+                new KeyByteSet(1, 58, 6, 97),
+                new KeyByteSet(2, 96, 254, 23),
+                new KeyByteSet(3, 11, 185, 69),
+                new KeyByteSet(4, 2, 93, 41),
+                new KeyByteSet(5, 62, 4, 234),
+                new KeyByteSet(6, 200, 56, 49),
+                new KeyByteSet(7, 89, 45, 142),
+                new KeyByteSet(8, 6, 88, 32)
+            };
 
             // Change these to a random key byte set from the above array to test key verification with
 
@@ -45,7 +51,7 @@ namespace AppSoftware.LicenceEngine.Tests
 
             for (int i = 0; i < 10000; i++)
             {
-                int seed = new Random().Next(0, Int32.MaxValue);
+                int seed = new Random().Next(0, int.MaxValue);
 
                 key = pkvLicenceKey.MakeKey(seed, keyByteSets);
 
@@ -55,13 +61,8 @@ namespace AppSoftware.LicenceEngine.Tests
 
                 // Check using full check method
 
-                Assert.True(pkvKeyCheck.CheckKey(
-                                            key,
-                                            new[] { keyByteSet1, keyByteSet2, keyByteSet3 },
-                                            keyByteSets.Length,
-                                            null
-                                        ) == PkvLicenceKeyResult.KeyGood, "Failed on iteration " + i
-                            );
+                Assert.True(pkvKeyCheck.CheckKey(key, new[] {keyByteSet1, keyByteSet2, keyByteSet3}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood,
+                    "Failed on iteration " + i);
 
                 // Check that erroneous check sum validation fails
 
@@ -70,31 +71,14 @@ namespace AppSoftware.LicenceEngine.Tests
 
             // Check a few random inputs
 
-            Assert.False(pkvKeyCheck.CheckKey("adcsadrewf",
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null) == PkvLicenceKeyResult.KeyGood
-                        );
-            Assert.False(pkvKeyCheck.CheckKey("",
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null) == PkvLicenceKeyResult.KeyGood
-                        );
-            Assert.False(pkvKeyCheck.CheckKey("123",
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null) == PkvLicenceKeyResult.KeyGood
-                        );
-            Assert.False(pkvKeyCheck.CheckKey("*()",
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null) == PkvLicenceKeyResult.KeyGood
-                        );
+            Assert.False(pkvKeyCheck.CheckKey("adcsadrewf", new[] {keyByteSet1, keyByteSet2}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood);
+            Assert.False(pkvKeyCheck.CheckKey("", new[] {keyByteSet1, keyByteSet2}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood);
+            Assert.False(pkvKeyCheck.CheckKey("123", new[] {keyByteSet1, keyByteSet2}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood);
+            Assert.False(pkvKeyCheck.CheckKey("*()", new[] {keyByteSet1, keyByteSet2}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood);
             Assert.False(pkvKeyCheck.CheckKey("dasdasdasgdjwqidqiwd21887127eqwdaishxckjsabcxjkabskdcbq2e81y12e8712",
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null) == PkvLicenceKeyResult.KeyGood
-                        );
+                new[] {keyByteSet1, keyByteSet2},
+                keyByteSets.Length,
+                null) == PkvLicenceKeyResult.KeyGood);
         }
 
         [Test]
@@ -114,13 +98,7 @@ namespace AppSoftware.LicenceEngine.Tests
                 {
                     var random = new Random();
 
-                    var kbs = new KeyByteSet
-                                  (
-                                      j + 1,
-                                      (byte)random.Next(0, 256),
-                                      (byte)random.Next(0, 256),
-                                      (byte)random.Next(0, 256)
-                                  );
+                    var kbs = new KeyByteSet(j + 1, (byte) random.Next(0, 256), (byte) random.Next(0, 256), (byte) random.Next(0, 256));
 
                     keyByteSets[j] = kbs;
                 }
@@ -136,7 +114,7 @@ namespace AppSoftware.LicenceEngine.Tests
                 KeyByteSet keyByteSet1 = new KeyByteSet(kbs1.KeyByteNo, kbs1.KeyByteA, kbs1.KeyByteB, kbs1.KeyByteC); // Change no to test others
                 KeyByteSet keyByteSet2 = new KeyByteSet(kbs2.KeyByteNo, kbs2.KeyByteA, kbs2.KeyByteB, kbs2.KeyByteC);
 
-                int seed = new Random().Next(0, Int32.MaxValue);
+                int seed = new Random().Next(0, int.MaxValue);
 
                 string key = pkvLicenceKey.MakeKey(seed, keyByteSets);
 
@@ -146,14 +124,8 @@ namespace AppSoftware.LicenceEngine.Tests
 
                 // Check using full check method
 
-                Assert.True(pkvKeyCheck.CheckKey(
-                                            key,
-                                            new[] { keyByteSet1, keyByteSet2 },
-                                            keyByteSets.Length,
-                                            null
-                                        ) == PkvLicenceKeyResult.KeyGood, "Failed on iteration " + i
-                            );
-
+                Assert.True(pkvKeyCheck.CheckKey(key, new[] {keyByteSet1, keyByteSet2}, keyByteSets.Length, null) == PkvLicenceKeyResult.KeyGood,
+                    "Failed on iteration " + i);
             }
         }
     }

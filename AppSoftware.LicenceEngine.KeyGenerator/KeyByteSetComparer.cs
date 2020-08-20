@@ -1,5 +1,11 @@
-﻿using System.Collections;
+﻿#region usings
+
+using System;
+using System.Collections;
+
 using AppSoftware.LicenceEngine.Common;
+
+#endregion
 
 namespace AppSoftware.LicenceEngine.KeyGenerator
 {
@@ -7,8 +13,13 @@ namespace AppSoftware.LicenceEngine.KeyGenerator
     {
         public int Compare(object x, object y)
         {
-            KeyByteSet kbs1 = (KeyByteSet)x;
-            KeyByteSet kbs2 = (KeyByteSet)y;
+            KeyByteSet kbs1 = (KeyByteSet) x;
+            KeyByteSet kbs2 = (KeyByteSet) y;
+
+            if (kbs1 == null || kbs2 == null)
+            {
+                throw new ArgumentNullException();
+            }
 
             if (kbs1.KeyByteNo > kbs2.KeyByteNo)
             {
@@ -23,5 +34,4 @@ namespace AppSoftware.LicenceEngine.KeyGenerator
             return 0;
         }
     }
-
 }

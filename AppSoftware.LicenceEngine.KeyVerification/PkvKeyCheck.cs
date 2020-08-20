@@ -7,30 +7,30 @@
 #define Key07
 #undef Key08
 
+#region usings
+
 using System;
+
 using AppSoftware.LicenceEngine.Common;
+
+#endregion
 
 namespace AppSoftware.LicenceEngine.KeyVerification
 {
     /// <summary>
-    /// Provides methods for verifying a licence key.
+    ///     Provides methods for verifying a licence key.
     /// </summary>
     public class PkvKeyCheck
     {
         /// <summary>
-        /// Check a given key for validity
+        ///     Check a given key for validity
         /// </summary>
         /// <param name="key">The full key</param>
         /// <param name="keyByteSetsToCheck">The KeyBytes that are to be tested in this check</param>
         /// <param name="totalKeyByteSets">The total number of KeyBytes used to make the key</param>
         /// <param name="blackListedSeeds">Any seed values (hex string representation) that should be banned</param>
         /// <returns></returns>
-        public PkvLicenceKeyResult CheckKey(
-            string key, 
-            KeyByteSet[] keyByteSetsToCheck,
-            int totalKeyByteSets, 
-            string[] blackListedSeeds
-        )
+        public PkvLicenceKeyResult CheckKey(string key, KeyByteSet[] keyByteSetsToCheck, int totalKeyByteSets, string[] blackListedSeeds)
         {
             key = FormatKeyForCompare(key);
 
@@ -51,7 +51,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
 
                     for (int i = 0; i < blackListedSeeds.Length; i++)
                     {
-                        if (key.StartsWith(blackListedSeeds[i]))
+                        if (key.StartsWith(blackListedSeeds[i], StringComparison.Ordinal))
                         {
                             result = PkvLicenceKeyResult.KeyBlackListed;
                         }
@@ -85,10 +85,6 @@ namespace AppSoftware.LicenceEngine.KeyVerification
 
                     if (seedParsed)
                     {
-                        string keyBytes;
-                        byte b;
-                        int keySubstringStart;
-
                         // The using of conditional compilation for the key byte checks
                         // means that we define the portions of the key that are checked
                         // at runtime. The advantage of this is that if someone creates
@@ -98,15 +94,16 @@ namespace AppSoftware.LicenceEngine.KeyVerification
 
                         foreach (var keyByteSet in keyByteSetsToCheck)
                         {
-                            keySubstringStart = GetKeySubstringStart(keyByteSet.KeyByteNo);
+                            int keySubstringStart = GetKeySubstringStart(keyByteSet.KeyByteNo);
 
                             if (keySubstringStart - 1 > key.Length)
                             {
-                                throw new InvalidOperationException("The KeyByte check position is out of range. You may have specified a check KeyByteNo that did not exist in the original key generation.");
+                                throw new InvalidOperationException(
+                                    "The KeyByte check position is out of range. You may have specified a check KeyByteNo that did not exist in the original key generation.");
                             }
-                            
-                            keyBytes = key.Substring(keySubstringStart, 2);
-                            b = GetKeyByte(seed, keyByteSet.KeyByteA, keyByteSet.KeyByteB, keyByteSet.KeyByteC);
+
+                            string keyBytes = key.Substring(keySubstringStart, 2);
+                            byte b = GetKeyByte(seed, keyByteSet.KeyByteA, keyByteSet.KeyByteB, keyByteSet.KeyByteC);
 
                             if (keyBytes != b.ToString("X2"))
                             {
@@ -126,17 +123,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
         }
 
         /// <summary>
-        /// Short hand way of creating pattern 8, 10, 12, 14
-        /// </summary>
-        /// <param name="keyByteNo"></param>
-        /// <returns></returns>
-        private int GetKeySubstringStart(int keyByteNo)
-        {
-            return (keyByteNo * 2) + 6;
-        }
-
-        /// <summary>
-        /// Indicate if the check sum portion of the key is valid
+        ///     Indicate if the check sum portion of the key is valid
         /// </summary>
         /// <param name="key"></param>
         /// <param name="totalKeyByteSets"> </param>
@@ -167,7 +154,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
         ////////////////////////////////////////////////////
 
         /// <summary>
-        /// Strip padding chars for comparison
+        ///     Strip padding chars for comparison
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -175,48 +162,20 @@ namespace AppSoftware.LicenceEngine.KeyVerification
         {
             if (key == null)
             {
-                key = String.Empty;
+                key = string.Empty;
             }
 
             // Replace -, space etc, upper case
 
-            return key.Trim().ToUpper().Replace("-", String.Empty).Replace(" ", String.Empty);
+            return key.Trim().ToUpper().Replace("-", string.Empty).Replace(" ", string.Empty);
         }
 
         /// <summary>
-        /// Given a seed and some input bytes, generate a single byte to return. This should 
-        /// be used with randomised data, that can be represented to retrieve the same key.
-        /// </summary>
-        /// <param name="seed"></param>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        private byte GetKeyByte(Int64 seed, byte a, byte b, byte c)
-        {
-            int aTemp = a % 25;
-            int bTemp = b % 3;
-
-            long result;
-
-            if ((a % 2) == 0)
-            {
-                result = ((seed >> aTemp) & 0xFF) ^ ((seed >> bTemp) | c);
-            }
-            else
-            {
-                result = ((seed >> aTemp) & 0xFF) ^ ((seed >> bTemp) & c);
-            }
-
-            return (byte)result;
-        }
-
-        /// <summary>
-        /// Generate a new checksum for a key
+        ///     Generate a new checksum for a key
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        private string GetChecksum(string str)
+        private static string GetChecksum(string str)
         {
             ushort left = 0x56;
             ushort right = 0xAF;
@@ -227,7 +186,7 @@ namespace AppSoftware.LicenceEngine.KeyVerification
 
                 for (int cnt = 0; cnt < str.Length; cnt++)
                 {
-                    right = (ushort)(right + Convert.ToByte(str[cnt]));
+                    right = (ushort) (right + Convert.ToByte(str[cnt]));
 
                     if (right > 0xFF)
                     {
@@ -243,9 +202,47 @@ namespace AppSoftware.LicenceEngine.KeyVerification
                 }
             }
 
-            ushort sum = (ushort)((left << 8) + right);
+            ushort sum = (ushort) ((left << 8) + right);
 
             return sum.ToString("X4"); // 4 char hex
+        }
+
+        /// <summary>
+        ///     Given a seed and some input bytes, generate a single byte to return. This should
+        ///     be used with randomised data, that can be represented to retrieve the same key.
+        /// </summary>
+        /// <param name="seed"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        private static byte GetKeyByte(long seed, byte a, byte b, byte c)
+        {
+            int aTemp = a % 25;
+            int bTemp = b % 3;
+
+            long result;
+
+            if ((a % 2) == 0)
+            {
+                result = ((seed >> aTemp) & 0xFF) ^ ((seed >> bTemp) | c);
+            }
+            else
+            {
+                result = ((seed >> aTemp) & 0xFF) ^ ((seed >> bTemp) & c);
+            }
+
+            return (byte) result;
+        }
+
+        /// <summary>
+        ///     Short hand way of creating pattern 8, 10, 12, 14
+        /// </summary>
+        /// <param name="keyByteNo"></param>
+        /// <returns></returns>
+        private int GetKeySubstringStart(int keyByteNo)
+        {
+            return (keyByteNo * 2) + 6;
         }
     }
 }
